@@ -51,42 +51,38 @@ bool specialCase2()
 
 const int MAXN = 1000010;
 vector <int> e[MAXN];
-int cntNodes[MAXN];
-int father[MAXN];
-int farDist, farNode;
 int ans[MAXN];
 bool ban[MAXN];
+int minValue, center;
 
-void dfs(int cur, int from, int d)
+int dfs(int cur, int from, int n)
 {
 	if(ban[cur])
-		return;
-	if(d > farDist)
-	{
-		farDist = d;
-		farNode = cur;
-	}
-
+		return 0;
+	int maxSubTree = 0, cntNodes = 0;
 	for(int i = 0; i < e[cur].size(); i++)
 		if(e[cur][i] != from)
 		{
-			father[e[cur][i]] = cur;
-			dfs(e[cur][i], cur, d+1);
+			int t = dfs(e[cur][i], cur, n);
+			cntNodes += t;
+			maxSubTree = max(maxSubTree, t);
 		}
+	maxSubTree = max(maxSubTree, n - 1 - cntNodes);
+	if(n > 0 && maxSubTree < minValue)
+	{
+		center = cur;
+		minValue = maxSubTree;
+	}
+
+	return cntNodes + 1;
 }
 
 int findCenter(int root)
 {
-	int ret;
-	farDist = -1;
-	dfs(root, -1, 0);
-	farDist = -1;
-	dfs(farNode, -1, 0);
-	ret = farNode;
-	for(int i = 0; i < farDist/2; i++)
-		ret = father[ret];
-	dfs(ret, -1, 0);
-	return ret;
+	minValue = 100000000;
+	int n = dfs(root, -1, 0);
+	dfs(root, -1, n);
+	return center;
 }
 
 
